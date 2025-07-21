@@ -5,6 +5,8 @@ import config from 'src/config';
 import { app } from 'src/services/express';
 import log from 'src/logger';
 import { Prisma } from 'src/services/prisma';
+import authorizeRequest from './middleware/authorizeRequest';
+import paymentRouter from './routes/payment';
 
 const server = async () => {
     const httpServer = createServer(app);
@@ -13,6 +15,7 @@ const server = async () => {
     await prisma.start();
 
     app.get('/health', healthcheck);
+    app.use('/api/payment', authorizeRequest, paymentRouter);
 
     new Promise<void>((resolve) =>
         httpServer.listen({ port: config.port }, resolve)
