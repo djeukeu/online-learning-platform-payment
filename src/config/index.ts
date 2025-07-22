@@ -20,6 +20,11 @@ const conf = convict({
             default: '',
             env: 'JWT',
         },
+        kafka_name: {
+            format: 'String',
+            default: '',
+            env: 'KAFKA_NAME',
+        },
         kafka_broker: {
             format: 'String',
             default: '',

@@ -2,7 +2,10 @@
 import { Response, Request } from 'express';
 import { validationResult } from 'express-validator';
 
+import config from 'src/config';
 import { BAD_REQUEST } from 'src/constants';
+import { kafkaProducer } from 'src/kafka';
+import { enrollSchema } from 'src/kafka/schema';
 import {
     createPayment,
     readAllPayment,
@@ -42,7 +45,15 @@ export const postPaymentController = async (req: any, res: Response) => {
     };
     const payment = await createPayment(newPayment as any);
 
-    // Notify the course service about the payment and enroll the student
+    kafkaProducer(
+        config.course_event,
+        {
+            user_id: req.user.id,
+            course_id: req.body.course_id,
+            payment_id: payment.id,
+        },
+        enrollSchema
+    );
 
     res.status(200).json({ payment });
 };
