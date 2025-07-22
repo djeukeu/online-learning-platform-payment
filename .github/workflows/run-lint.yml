@@ -1,0 +1,36 @@
+name: Lint
+run-name: ${{ github.actor }} triggered the lint ci
+
+on:
+    push:
+        branches:
+            - '**'
+            - '!master'
+            - '!develop'
+
+jobs:
+    run-lint:
+        runs-on: ubuntu-24.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+            - name: Read node version
+              id: nvmrc
+              uses: browniebroke/read-nvmrc-action@v1
+            - name: Setup Nodejs
+              uses: actions/setup-node@v4
+              with:
+                node-version: '${{ steps.nvmrc.outputs.node_version }}'
+            - name: Cache node modules
+              uses: actions/cache@v4
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
+            - name: Lint
+              run: |
+                  yarn 
+                  yarn lint
