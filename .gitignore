@@ -11,7 +11,7 @@ logs
 # Dependency directories
 node_modules/
 build/
-mongodbdata/
+pgdata/
 miniodata/
 data/
 

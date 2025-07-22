@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -19,10 +19,10 @@ enum PaymentMethod {
 }
 
 model Payment {
-  id             String        @id @default(uuid()) @map("_id")
+  id             String        @id @default(uuid()) 
   ref            String        @unique
   user_id        String
-  amount         Float
+  amount         Decimal
   status         PaymentStatus @default(PENDING)
   payment_method PaymentMethod
   createdAt      DateTime      @default(now())
