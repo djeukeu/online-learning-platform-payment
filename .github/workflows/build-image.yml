@@ -1,0 +1,57 @@
+name: Build Image Ci
+run-name: ${{ github.actor }} triggered the Build Image Ci
+
+on:
+    push:
+        branches:
+            - 'develop'
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-24.04
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+            - name: Setup Gitversion
+              uses: gittools/actions/gitversion/setup@v4.0.1
+              with:
+                  versionSpec: '6.3.0'
+            - name: Execute Gitversion
+              id: gitversion
+              uses: gittools/actions/gitversion/execute@v4.0.1
+              with:
+                  configFilePath: GitVersion.yml
+            - name: Read node version
+              id: nvmrc
+              uses: browniebroke/read-nvmrc-action@v1
+            - name: Setup Nodejs
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '${{ steps.nvmrc.outputs.node_version }}'
+            - name: Authenticate Docker Credentials
+              uses: docker/login-action@v3
+              with:
+                  username: ${{ secrets.DOCKER_USERNAME }}
+                  password: ${{ secrets.DOCKER_TOKEN }}
+            - name: Set image tag and save image tag
+              run: |
+                  echo "TAG=${{ steps.gitversion.outputs.major }}.${{ steps.gitversion.outputs.minor }}.${{ steps.gitversion.outputs.commitsSinceVersionSource }}" >> $GITHUB_ENV
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+            - name: Build and push image
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  file: ./Dockerfile
+                  push: true
+                  tags: |
+                      ${{ secrets.DOCKER_USERNAME }}/${{ secrets.CONTAINER_NAME }}:${{ env.TAG }}
+            - name: Cache node modules
+              uses: actions/cache@v4
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-node-
