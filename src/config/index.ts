@@ -20,31 +20,6 @@ const conf = convict({
             default: '',
             env: 'JWT',
         },
-        kafka_name: {
-            format: 'String',
-            default: '',
-            env: 'KAFKA_NAME',
-        },
-        kafka_broker: {
-            format: 'String',
-            default: '',
-            env: 'KAFKA_BROKER',
-        },
-        kafka_registry: {
-            format: 'String',
-            default: '',
-            env: 'KAFKA_SCHEMA_REGISTRY',
-        },
-        kafka_topic: {
-            format: 'String',
-            default: '',
-            env: 'KAFKA_TOPIC',
-        },
-        course_event: {
-            format: 'String',
-            default: '',
-            env: 'COURSE_EVENT',
-        },
     },
 });
 conf.validate({ allowed: 'strict' });

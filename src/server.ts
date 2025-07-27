@@ -7,15 +7,12 @@ import log from 'src/logger';
 import { Prisma } from 'src/services/prisma';
 import authorizeRequest from './middleware/authorizeRequest';
 import paymentRouter from './routes/payment';
-import { kafkaConsumer } from './kafka';
 
 const server = async () => {
     const httpServer = createServer(app);
 
     const prisma = new Prisma();
     await prisma.start();
-
-    await kafkaConsumer();
 
     app.get('/health', healthcheck);
     app.use('/api/payment', authorizeRequest, paymentRouter);
