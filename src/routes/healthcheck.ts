@@ -1,20 +1,30 @@
 import { Response, Request } from 'express';
-import { PrismaClient } from '@prisma/client';
 
-const healthcheck = async (_req: Request, res: Response) => {
-    const healthcheck = {
+import { Prisma } from 'src/services/prisma';
+
+export const serverHealth = async (_req: Request, res: Response) => {
+    res.status(200).json({
         uptime: process.uptime(),
         message: 'OK',
         timestamp: Date.now(),
-    };
-    try {
-        const prisma = new PrismaClient();
-        await prisma.$connect();
-        res.status(200).json(healthcheck);
-    } catch (error: unknown) {
-        healthcheck.message = error as string;
-        res.status(503).send(error);
-    }
+    });
 };
 
-export default healthcheck;
+export const databaseHealthcheck = async (_req: Request, res: Response) => {
+    try {
+        await Prisma.health();
+        res.status(200).json({
+            uptime: process.uptime(),
+            message: 'OK',
+            timestamp: Date.now(),
+            db: true,
+        });
+    } catch (error: unknown) {
+        res.status(503).json({
+            uptime: process.uptime(),
+            message: error,
+            timestamp: Date.now(),
+            db: false,
+        });
+    }
+};

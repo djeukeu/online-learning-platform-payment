@@ -1,20 +1,20 @@
 import { createServer } from 'http';
 
-import healthcheck from 'src/routes/healthcheck';
 import config from 'src/config';
 import { app } from 'src/services/express';
 import log from 'src/logger';
 import { Prisma } from 'src/services/prisma';
 import authorizeRequest from './middleware/authorizeRequest';
 import paymentRouter from './routes/payment';
+import { databaseHealthcheck, serverHealth } from './routes/healthcheck';
 
 const server = async () => {
     const httpServer = createServer(app);
 
-    const prisma = new Prisma();
-    await prisma.start();
+    await Prisma.start();
 
-    app.get('/health', healthcheck);
+    app.get('/health', serverHealth);
+    app.get('/db-health', databaseHealthcheck);
     app.use('/api/payment', authorizeRequest, paymentRouter);
 
     new Promise<void>((resolve) =>

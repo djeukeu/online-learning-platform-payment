@@ -1,8 +1,9 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Payment } from '@prisma/client';
 import { Response, Request } from 'express';
 import { validationResult } from 'express-validator';
 
 import { BAD_REQUEST } from 'src/constants';
+import { IAuthRequest } from 'src/interface/request';
 import {
     createPayment,
     readAllPayment,
@@ -27,20 +28,23 @@ export const getPaymentController = async (req: Request, res: Response) => {
     res.status(200).json({ payment });
 };
 
-export const postPaymentController = async (req: any, res: Response) => {
+export const postPaymentController = async (
+    req: IAuthRequest,
+    res: Response
+) => {
     const result = validationResult(req);
     if (!result.isEmpty()) {
         res.status(400).json({ errcode: BAD_REQUEST, message: result.array() });
         return;
     }
 
-    const newPayment = {
+    const newPayment: Partial<Payment> = {
         ref: paymentReference(),
-        user_id: req.user.id,
+        user_id: req?.user?.id,
         amount: req.body.amount,
         payment_method: req.body.payment_method.toUpperCase(),
     };
-    const payment = await createPayment(newPayment as any);
+    const payment = await createPayment(newPayment as Payment);
 
     res.status(200).json({ payment });
 };
