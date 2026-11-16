@@ -2,29 +2,25 @@ name: Lint
 run-name: ${{ github.actor }} triggered the lint ci
 
 on:
-    push:
+    pull_request:
         branches:
-            - '**'
-            - '!master'
-            - '!develop'
+            - master
+            - develop
 
 jobs:
     run-lint:
-        runs-on: ubuntu-24.04
+        runs-on: ubuntu-26.04
         steps:
             - name: Checkout
-              uses: actions/checkout@v4
+              uses: actions/checkout@v7
               with:
                   fetch-depth: 0
-            - name: Read node version
-              id: nvmrc
-              uses: browniebroke/read-nvmrc-action@v1
             - name: Setup Nodejs
-              uses: actions/setup-node@v4
+              uses: actions/setup-node@v7
               with:
-                node-version: '${{ steps.nvmrc.outputs.node_version }}'
+                  node-version-file: .nvmrc
             - name: Cache node modules
-              uses: actions/cache@v4
+              uses: actions/cache@v6
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/package.json') }}
