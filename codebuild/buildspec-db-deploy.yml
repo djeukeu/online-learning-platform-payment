@@ -9,7 +9,7 @@ phases:
             - yarn install --frozen-lockfile
     build:
         commands:
-            - export DB_USERNAME_ENC="$(node -e 'process.stdout.write(encodeURIComponent(DB_USERNAME))')"
-            - export DB_PASSWORD_ENC="$(node -e 'process.stdout.write(encodeURIComponent(DB_PASSWORD))')"
+            - export DB_USERNAME_ENC="$(node -e 'process.stdout.write(encodeURIComponent(process.env.DB_USERNAME))')"
+            - export DB_PASSWORD_ENC="$(node -e 'process.stdout.write(encodeURIComponent(process.env.DB_PASSWORD))')"
             - export DATABASE_URL="postgresql://${DB_USERNAME_ENC}:${DB_PASSWORD_ENC}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
             - yarn prisma:deploy
